@@ -31,7 +31,9 @@ ORDER BY ym;
 
 -- ----------------------------------------------------------------------
 -- Розвідувальні запити
--- топ - 10 категроій за виторгом
+-- топ - 10 категроій за виторгом:
+-- 1. health_beauty, 2. watches_gifts, 3. bed_bath_table, 4. sports_leisure, 5. computers_accessories, 
+-- 	6. furniture_decor, 7. housewares, 8. cool_stuff, 9. auto, 10. toys
 SELECT
 	t.product_category_1 AS category_en,
     ROUND(SUM(oi.price), 2) AS revenue
@@ -46,6 +48,7 @@ LIMIT 10;
 
 
 -- виторг за штатами (для карти в Tableau)
+--SP (5067633, 16), RJ (1759651,13), MG (1552481,83)
 SELECT
 	  cu.customer_state,
       ROUND(SUM(oi.price), 2) AS revenue,
@@ -58,6 +61,7 @@ GROUP BY cu.customer_state
 ORDER BY revenue DESC;
 
 --  середня оцінка (review_score) за категоріями
+-- книги та інструменти мають найвищі оцінки (4.4+)
 SELECT
 	 t.product_category_1 AS category_en,
      ROUND(AVG(r.review_score), 2) AS avg_score,
@@ -71,12 +75,15 @@ HAVING reviews > 50
 ORDER BY avg_score DESC;
 
 -- середній час доставки (різниця між датою купівлі і датою доставки)
+-- 12.6
 SELECT
 	  ROUND(AVG(julianday(order_delivered_6) - julianday(order_purchase_t)), 1) AS avg_delivery_day
 FROM olist_orders_dataset
 WHERE order_status = 'delivered' AND order_delivered_6 IS NOT NULL;
 
 -- розподіл способів оплати
+-- Кредитна картка домінує — 76 795 транзакцій на 12.5M,
+-- що значно більше ніж boleto (19 784) і voucher (5 775).
 SELECT
 	  payment_type,
       COUNT(*) AS n,
